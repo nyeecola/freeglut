@@ -15,6 +15,9 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
+set(UNIX 1)
+set(SERENITY 1)
+
 # setup version numbers
 # XXX: Update these for each release!
 set(VERSION_MAJOR 3)
@@ -188,7 +191,15 @@ ELSEIF(ANDROID OR BLACKBERRY)
 
 ELSE()
     # UNIX (Wayland)
-    IF(FREEGLUT_WAYLAND)
+    IF(SERENITY)
+        LIST(APPEND FREEGLUT_SRCS
+            src/android/fg_cursor_android.c
+            src/android/fg_ext_android.c
+            src/android/fg_gamemode_android.c
+            src/android/fg_joystick_android.c
+            src/android/fg_spaceball_android.c
+        )
+    ELSEIF(FREEGLUT_WAYLAND)
         LIST(APPEND FREEGLUT_SRCS
             src/wayland/fg_cursor_wl.c
             src/wayland/fg_ext_wl.c
@@ -207,23 +218,6 @@ ELSE()
         )
     # UNIX (X11)
     ELSE()
-        LIST(APPEND FREEGLUT_SRCS
-            src/x11/fg_cursor_x11.c
-            src/x11/fg_ext_x11.c
-            src/x11/fg_gamemode_x11.c
-            src/x11/fg_glutfont_definitions_x11.c
-            src/x11/fg_init_x11.c
-            src/x11/fg_internal_x11.h
-            src/x11/fg_input_devices_x11.c
-            src/x11/fg_joystick_x11.c
-            src/x11/fg_main_x11.c
-            src/x11/fg_menu_x11.c
-            src/x11/fg_spaceball_x11.c
-            src/x11/fg_state_x11.c
-            src/x11/fg_structure_x11.c
-            src/x11/fg_window_x11.c
-            src/x11/fg_xinput_x11.c
-        )
         IF(NOT(FREEGLUT_GLES))
             LIST(APPEND FREEGLUT_SRCS
                 src/x11/fg_internal_x11_glx.h
@@ -314,7 +308,7 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
 INCLUDE(CheckIncludeFiles)
-IF(UNIX AND NOT(ANDROID OR BLACKBERRY OR FREEGLUT_WAYLAND))
+IF(UNIX AND NOT(ANDROID OR BLACKBERRY OR FREEGLUT_WAYLAND OR SERENITY))
     FIND_PACKAGE(X11 REQUIRED)
     INCLUDE_DIRECTORIES(${X11_X11_INCLUDE_PATH})
     LIST(APPEND LIBS ${X11_X11_LIB})
